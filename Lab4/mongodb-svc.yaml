@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pacman-mongodb
+  namespace: lab4
+  labels:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/instance: pacman
+    app.kubernetes.io/component: mongodb
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: "mongodb"
+      port: 27017
+      targetPort: mongodb
+  selector:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/instance: pacman
+    app.kubernetes.io/component: mongodb

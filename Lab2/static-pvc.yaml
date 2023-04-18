@@ -1,0 +1,18 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: static-pvc
+  namespace: lab2
+  labels:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/instance: pacman
+    app.kubernetes.io/component: mongodb
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  volumeName: static-pv
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "2Gi"

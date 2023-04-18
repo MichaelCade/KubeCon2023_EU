@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: busybox-sc
+  name: busybox-sc
+  namespace: task2
+spec:
+
+  volumes:
+  - name:  my-vol # has to match volumeMounts.name
+    persistentVolumeClaim:
+      claimName: storageclassmypvc
+
+  containers:
+  - args:
+    - /bin/sh
+    - -c
+    - sleep 3600
+    image: busybox
+    name: busybox-one
+
+    volumeMounts:
+    - name: my-vol # has to match volumes.name
+      mountPath: /etc/foo

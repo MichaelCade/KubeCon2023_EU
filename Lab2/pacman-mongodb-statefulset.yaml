@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/instance: pacman
+    app.kubernetes.io/name: mongodb
+  name: pacman-mongodb
+  namespace: lab2
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: mongodb
+      app.kubernetes.io/instance: pacman
+      app.kubernetes.io/name: mongodb
+  serviceName: pacman-mongodb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: mongodb
+        app.kubernetes.io/instance: pacman
+        app.kubernetes.io/name: mongodb
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: mongodb
+                    app.kubernetes.io/instance: pacman
+                    app.kubernetes.io/name: mongodb
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+      containers:
+        - env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MONGODB_ROOT_USER
+              value: root
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mongodb-root-password
+                  name: pacman-mongodb
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: "0"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: "no"
+            - name: MONGODB_DISABLE_JAVASCRIPT
+              value: "no"
+            - name: MONGODB_ENABLE_JOURNAL
+              value: "yes"
+            - name: MONGODB_PORT_NUMBER
+              value: "27017"
+            - name: MONGODB_ENABLE_IPV6
+              value: "no"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: "no"
+          image: docker.io/bitnami/mongodb:6.0.5-debian-11-r4
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - /bitnami/scripts/ping-mongodb.sh
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: mongodb
+          ports:
+            - containerPort: 27017
+              name: mongodb
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+                - /bitnami/scripts/readiness-probe.sh
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources: {}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+
+          ### STORAGE MOUNT IN CONTAINER ###
+          volumeMounts:
+            - mountPath: /bitnami/mongodb
+              name: datadir
+            - mountPath: /bitnami/scripts
+              name: common-scripts
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1001
+      serviceAccount: pacman-mongodb
+      serviceAccountName: pacman-mongodb
+      terminationGracePeriodSeconds: 30
+
+      ### POD VOLUME DEFINITION ###
+      volumes:
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: static-pvc
+        - configMap:
+            defaultMode: 360
+            name: pacman-mongodb-common-scripts
+          name: common-scripts

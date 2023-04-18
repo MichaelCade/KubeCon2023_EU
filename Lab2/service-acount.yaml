@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pacman-mongodb
+  namespace: lab2
+  labels:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/instance: pacman
+secrets:
+  - name: pacman-mongodb
+automountServiceAccountToken: true
