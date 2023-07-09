@@ -118,7 +118,7 @@ In the following example we are going to configure a projected volume for a pod.
 1. Run the following commands to create a `secret` and `configmap`
 
 ```
-kubectl create secret generic mysecret -n lab1 --from-literal=username=supersecret
+kubectl create secret generic mysecret -n lab1 --from-literal=password=supersecret
 kubectl create configmap myconfigmap  -n lab1 --from-literal=config=true
 ```
 
