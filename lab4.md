@@ -17,7 +17,7 @@ Similar to Lab 2, the manifests for the Pac-Man application have been provisione
 
     ```bash
     kubectl create namespace lab4
-    cd /
+    cd ../ # go to repository root
     kubectl apply -f /lab4/ -n lab4
     ```
 
